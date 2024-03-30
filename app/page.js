@@ -2,8 +2,10 @@
 
 import styles from "./page.module.css";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay, faStop, faPowerOff } from "@fortawesome/free-solid-svg-icons";
 
-export default function Home() {
+export default function Pomodoro() {
 	const DEF_SESS = 1500;
 	const DEF_BRK = 300;
 
@@ -81,47 +83,73 @@ export default function Home() {
 
 	return (
 		<div>
-			<div id="pomodoro">
-				<div id="timer">
-					<h1>{formatTime(time)}</h1>
+			<div id="pomodoro" className={styles.pomodoro}>
+				<div className={styles.timer}>
+					{!timeInterval ? (
+						<button
+							onClick={startTimer}
+							className={`${styles.timeBtn} ${styles.startStopBtn}`}
+						>
+							<FontAwesomeIcon icon={faPlay} />
+						</button>
+					) : (
+						<button
+							onClick={stopTimer}
+							className={`${styles.timeBtn} ${styles.startStopBtn}`}
+						>
+							<FontAwesomeIcon icon={faStop} />
+						</button>
+					)}
+					<div className={styles.status}>
+						<h1>{formatTime(time)}</h1>
+					</div>
+					<button
+						onClick={resetTimer}
+						className={`${styles.timeBtn} ${styles.resetBtn}`}
+					>
+						<FontAwesomeIcon icon={faPowerOff} />
+					</button>
 				</div>
-				<div id="control">
-					<div class="session">
-						<button id="session-increment" onClick={() => changeSess("add")}>
+
+				<div className={styles.update}>
+					<div className={styles.session}>
+						<button
+							onClick={() => changeSess("add")}
+							className={styles.updateBtn}
+						>
 							+
 						</button>
 						<div>
-							<label id="session-label">Session Length</label>
-							<h2 id="session-length" class="adjust">
-								{session / 60}
-							</h2>
+							<label>Session</label>
+							<h2 id="session-length">{session / 60}</h2>
 						</div>
-						<button id="session-decrement" onClick={() => changeSess("sub")}>
+						<button
+							onClick={() => changeSess("sub")}
+							className={styles.updateBtn}
+						>
 							-
 						</button>
 					</div>
-					<div class="break">
-						<button id="break-increment" onClick={() => changeBreak("add")}>
+					<div className={styles.break}>
+						<button
+							onClick={() => changeBreak("add")}
+							className={styles.updateBtn}
+						>
 							+
 						</button>
 						<div>
-							<label id="break-label">Break Length</label>
+							<label>Break</label>
 							<h2 id="break-length" class="adjust">
 								{breaktime / 60}
 							</h2>
 						</div>
-						<button id="break-decrement" onClick={() => changeBreak("sub")}>
+						<button
+							onClick={() => changeBreak("sub")}
+							className={styles.updateBtn}
+						>
 							-
 						</button>
 					</div>
-				</div>
-				<div id="buttons">
-					{!timeInterval ? (
-						<button onClick={startTimer}>start</button>
-					) : (
-						<button onClick={stopTimer}>stop</button>
-					)}
-					<button onClick={resetTimer}>reset</button>
 				</div>
 			</div>
 		</div>

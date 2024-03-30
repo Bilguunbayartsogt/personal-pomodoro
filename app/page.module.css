@@ -1,0 +1,66 @@
+.pomodoro {
+	border: 1px solid gray;
+	border-radius: 20px;
+	margin: 5rem auto;
+	width: 20rem;
+	padding: 10px;
+	height: auto;
+}
+
+.timer {
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	padding: 10px;
+	align-items: center;
+}
+
+.status {
+	border: 0.1px solid gray;
+	padding: 10px;
+	width: 10rem;
+	font-size: 20px;
+	border-radius: 5px;
+}
+
+.timeBtn {
+	width: 2.5rem;
+	height: 2.5rem;
+	background-color: rgb(223, 222, 222);
+	border-radius: 50%;
+	margin: 0 10px;
+	border: none;
+	font-size: 18px;
+}
+
+.update {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
+.update label {
+	font-size: 13px;
+}
+
+.session,
+.break {
+	border: 0.1px solid gray;
+	width: 10rem;
+	display: flex;
+	justify-content: space-evenly;
+	padding: 5px;
+	text-align: center;
+	align-items: center;
+	margin: 5px;
+	border-radius: 5px;
+}
+
+.updateBtn {
+	width: 1.8rem;
+	height: 1.8rem;
+	border-radius: 50%;
+	border: none;
+	background-color: rgb(223, 222, 222);
+	font-size: 20px;
+}

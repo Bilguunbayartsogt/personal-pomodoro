@@ -1,95 +1,129 @@
-import Image from "next/image";
+"use client";
+
 import styles from "./page.module.css";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+	const DEF_SESS = 1500;
+	const DEF_BRK = 300;
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+	const [time, setTime] = useState(DEF_SESS);
+	const [timeInterval, setTimeInterval] = useState(null);
+	const [session, setSession] = useState(DEF_SESS);
+	const [breaktime, setBreak] = useState(DEF_BRK);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+	const startTimer = () => {
+		if (!timeInterval) {
+			setTimeInterval(
+				setInterval(() => {
+					setTime((prev) => {
+						if (prev === 0) {
+							clearInterval(timeInterval);
+							setTimeInterval(null);
+						}
+						return prev - 1;
+					});
+				}, 1000)
+			);
+		}
+	};
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+	const stopTimer = () => {
+		clearInterval(timeInterval);
+		setTimeInterval(null);
+	};
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+	function formatTime(seconds) {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		const formattedSeconds =
+			remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
+		return `${minutes}:${formattedSeconds}`;
+	}
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+	const changeSess = (operator) => {
+		if (!timeInterval && session == time) {
+			if (operator === "add") {
+				setSession((prev) => {
+					const newSess = prev + 60;
+					setTime(newSess);
+					return newSess;
+				});
+			} else if (operator === "sub") {
+				setSession((prev) => {
+					return prev - 60;
+				});
+			}
+		}
+	};
+
+	const changeBreak = (operator) => {
+		if (!timeInterval && session == time) {
+			if (operator === "add") {
+				setBreak((prev) => {
+					return prev + 60;
+				});
+			} else if (operator === "sub") {
+				setBreak((prev) => {
+					return prev - 60;
+				});
+			}
+		}
+	};
+
+	const resetTimer = () => {
+		setSession(DEF_SESS);
+		setBreak(DEF_BRK);
+		setTime(DEF_SESS);
+		clearInterval(timeInterval);
+		setTimeInterval(null);
+	};
+
+	return (
+		<div>
+			<div id="pomodoro">
+				<div id="timer">
+					<h1>{formatTime(time)}</h1>
+				</div>
+				<div id="control">
+					<div class="session">
+						<button id="session-increment" onClick={() => changeSess("add")}>
+							+
+						</button>
+						<div>
+							<label id="session-label">Session Length</label>
+							<h2 id="session-length" class="adjust">
+								{session / 60}
+							</h2>
+						</div>
+						<button id="session-decrement" onClick={() => changeSess("sub")}>
+							-
+						</button>
+					</div>
+					<div class="break">
+						<button id="break-increment" onClick={() => changeBreak("add")}>
+							+
+						</button>
+						<div>
+							<label id="break-label">Break Length</label>
+							<h2 id="break-length" class="adjust">
+								{breaktime / 60}
+							</h2>
+						</div>
+						<button id="break-decrement" onClick={() => changeBreak("sub")}>
+							-
+						</button>
+					</div>
+				</div>
+				<div id="buttons">
+					{!timeInterval ? (
+						<button onClick={startTimer}>start</button>
+					) : (
+						<button onClick={stopTimer}>stop</button>
+					)}
+					<button onClick={resetTimer}>reset</button>
+				</div>
+			</div>
+		</div>
+	);
 }

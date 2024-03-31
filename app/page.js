@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./page.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faStop, faPowerOff } from "@fortawesome/free-solid-svg-icons";
 
@@ -9,30 +9,63 @@ export default function Pomodoro() {
 	const DEF_SESS = 1500;
 	const DEF_BRK = 300;
 
-	const [time, setTime] = useState(DEF_SESS);
-	const [timeInterval, setTimeInterval] = useState(null);
+	const [timeStatus, setTimeStatus] = useState(DEF_SESS);
+	const [breakStatus, setBreakStatus] = useState(DEF_BRK);
+	const [sessionInterval, setSessionInterval] = useState(null);
+	const [breakInterval, setBreakInterval] = useState(null);
 	const [session, setSession] = useState(DEF_SESS);
 	const [breaktime, setBreak] = useState(DEF_BRK);
+	const [isSession, setIsSession] = useState(false);
+	const [isBreak, setIsBreak] = useState(false);
+	const [isSessOver, setIsSessOver] = useState(false);
 
-	const startTimer = () => {
-		if (!timeInterval) {
-			setTimeInterval(
-				setInterval(() => {
-					setTime((prev) => {
-						if (prev === 0) {
-							clearInterval(timeInterval);
-							setTimeInterval(null);
-						}
-						return prev - 1;
-					});
-				}, 1000)
-			);
+	useEffect(() => {
+		if (timeStatus <= 0) {
+			setTimeStatus(DEF_SESS);
+			setIsSessOver(true);
+			stopTimer();
+		}
+	}, [timeStatus, breaktime]);
+
+	// useEffect(() => {
+	// 	return () => {
+	// 		// Cleanup function to clear the interval when the component unmounts
+	// 		stopTimer();
+	// 	};
+	// }, []);
+
+	const startSession = () => {
+		if (!sessionInterval) {
+			const sessionIntervalId = setInterval(() => {
+				setTimeStatus((prev) => {
+					return prev - 1;
+				});
+			}, 1000);
+			setSessionInterval(sessionIntervalId);
+			setIsSession(true);
+			setIsBreak(false);
+		}
+	};
+
+	const startBreak = () => {
+		if (!breakInterval) {
+			const breakIntervalId = setInterval(() => {
+				setBreakStatus((prev) => {
+					return prev - 1;
+				});
+			}, 1000);
+			setBreakInterval(breakIntervalId);
+			setIsSession(false);
+			setIsBreak(true);
+			setIsSessOver(false);
 		}
 	};
 
 	const stopTimer = () => {
-		clearInterval(timeInterval);
-		setTimeInterval(null);
+		clearInterval(sessionInterval);
+		clearInterval(breakInterval);
+		setSessionInterval(null);
+		setBreakInterval(null);
 	};
 
 	function formatTime(seconds) {
@@ -44,28 +77,30 @@ export default function Pomodoro() {
 	}
 
 	const changeSess = (operator) => {
-		if (!timeInterval && session == time) {
+		if (!sessionInterval && session == time) {
 			if (operator === "add") {
 				setSession((prev) => {
 					const newSess = prev + 60;
 					setTime(newSess);
 					return newSess;
 				});
-			} else if (operator === "sub") {
+			} else if (operator === "sub" && session > 60) {
 				setSession((prev) => {
-					return prev - 60;
+					const newSess = prev - 60;
+					setTime(newSess);
+					return newSess;
 				});
 			}
 		}
 	};
 
 	const changeBreak = (operator) => {
-		if (!timeInterval && session == time) {
+		if (!sessionInterval && session == time) {
 			if (operator === "add") {
 				setBreak((prev) => {
 					return prev + 60;
 				});
-			} else if (operator === "sub") {
+			} else if (operator === "sub" && breaktime > 0) {
 				setBreak((prev) => {
 					return prev - 60;
 				});
@@ -75,19 +110,44 @@ export default function Pomodoro() {
 
 	const resetTimer = () => {
 		setSession(DEF_SESS);
-		setBreak(DEF_BRK);
-		setTime(DEF_SESS);
-		clearInterval(timeInterval);
-		setTimeInterval(null);
+		setBreakStatus(DEF_BRK);
+		setTimeStatus(DEF_SESS);
+		clearInterval(sessionInterval);
+		clearInterval(breakInterval);
+		setSessionInterval(null);
+		setBreakInterval(null);
+	};
+
+	const startBreakBtn = (
+		<button onClick={() => startBreak()}>Start Break!</button>
+	);
+
+	const displayStatus = () => {
+		if (isSessOver) {
+			return startBreakBtn;
+		} else if (!isSessOver && isSession) {
+			return <h1>{formatTime(timeStatus)}</h1>;
+		} else if (isBreak) {
+			return <h1>{formatTime(breakStatus)}</h1>;
+		} else {
+			return <h1>{formatTime(timeStatus)}</h1>;
+		}
 	};
 
 	return (
-		<div>
+		<div className={styles.allContainer}>
+			<div className={styles.statusLabel}>
+				{/* {timeInterval ? (
+					<div>{isSession ? <label>Session</label> : <label>Break</label>}</div>
+				) : (
+					<label>Good Morning!</label>
+				)} */}
+			</div>
 			<div id="pomodoro" className={styles.pomodoro}>
 				<div className={styles.timer}>
-					{!timeInterval ? (
+					{!sessionInterval ? (
 						<button
-							onClick={startTimer}
+							onClick={startSession}
 							className={`${styles.timeBtn} ${styles.startStopBtn}`}
 						>
 							<FontAwesomeIcon icon={faPlay} />
@@ -100,9 +160,7 @@ export default function Pomodoro() {
 							<FontAwesomeIcon icon={faStop} />
 						</button>
 					)}
-					<div className={styles.status}>
-						<h1>{formatTime(time)}</h1>
-					</div>
+					<div className={styles.status}>{displayStatus()}</div>
 					<button
 						onClick={resetTimer}
 						className={`${styles.timeBtn} ${styles.resetBtn}`}
@@ -139,9 +197,7 @@ export default function Pomodoro() {
 						</button>
 						<div>
 							<label>Break</label>
-							<h2 id="break-length" class="adjust">
-								{breaktime / 60}
-							</h2>
+							<h2>{breaktime / 60}</h2>
 						</div>
 						<button
 							onClick={() => changeBreak("sub")}

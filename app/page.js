@@ -14,7 +14,7 @@ export default function Pomodoro() {
 	const [sessionInterval, setSessionInterval] = useState(null);
 	const [breakInterval, setBreakInterval] = useState(null);
 	const [session, setSession] = useState(DEF_SESS);
-	const [breaktime, setBreak] = useState(DEF_BRK);
+	// const [breaktime, setBreak] = useState(DEF_BRK);
 	const [isSession, setIsSession] = useState(false);
 	const [isBreak, setIsBreak] = useState(false);
 	const [isSessOver, setIsSessOver] = useState(false);
@@ -25,14 +25,14 @@ export default function Pomodoro() {
 			setIsSessOver(true);
 			stopTimer();
 		}
-	}, [timeStatus, breaktime]);
+	}, [timeStatus, breakStatus]);
 
-	// useEffect(() => {
-	// 	return () => {
-	// 		// Cleanup function to clear the interval when the component unmounts
-	// 		stopTimer();
-	// 	};
-	// }, []);
+	useEffect(() => {
+		return () => {
+			// Cleanup function to clear the interval when the component unmounts
+			stopTimer();
+		};
+	}, []);
 
 	const startSession = () => {
 		if (!sessionInterval) {
@@ -77,17 +77,17 @@ export default function Pomodoro() {
 	}
 
 	const changeSess = (operator) => {
-		if (!sessionInterval && session == time) {
+		if (!sessionInterval && session == timeStatus) {
 			if (operator === "add") {
 				setSession((prev) => {
 					const newSess = prev + 60;
-					setTime(newSess);
+					setTimeStatus(newSess);
 					return newSess;
 				});
 			} else if (operator === "sub" && session > 60) {
 				setSession((prev) => {
 					const newSess = prev - 60;
-					setTime(newSess);
+					setTimeStatus(newSess);
 					return newSess;
 				});
 			}
@@ -95,13 +95,13 @@ export default function Pomodoro() {
 	};
 
 	const changeBreak = (operator) => {
-		if (!sessionInterval && session == time) {
+		if (!sessionInterval && session == timeStatus) {
 			if (operator === "add") {
-				setBreak((prev) => {
+				setBreakStatus((prev) => {
 					return prev + 60;
 				});
-			} else if (operator === "sub" && breaktime > 0) {
-				setBreak((prev) => {
+			} else if (operator === "sub" && breakStatus > 0) {
+				setBreakStatus((prev) => {
 					return prev - 60;
 				});
 			}
@@ -197,7 +197,7 @@ export default function Pomodoro() {
 						</button>
 						<div>
 							<label>Break</label>
-							<h2>{breaktime / 60}</h2>
+							<h2>{breakStatus / 60}</h2>
 						</div>
 						<button
 							onClick={() => changeBreak("sub")}

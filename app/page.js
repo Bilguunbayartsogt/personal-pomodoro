@@ -44,6 +44,9 @@ export default function Pomodoro() {
 			setSessionInterval(sessionIntervalId);
 			setIsSession(true);
 			setIsBreak(false);
+			if (timeStatus === session) {
+				playLetsGo();
+			}
 		}
 	};
 
@@ -132,6 +135,11 @@ export default function Pomodoro() {
 		} else {
 			return <h1>{formatTime(timeStatus)}</h1>;
 		}
+	};
+
+	const playLetsGo = () => {
+		const letsGo = new Audio("./lets-go.mp3");
+		letsGo.play();
 	};
 
 	return (

@@ -13,8 +13,8 @@ import {
 
 export default function Pomodoro() {
 	//constant variables:
-	const DEF_SESS = 3;
-	const DEF_BRK = 6;
+	const DEF_SESS = 1500;
+	const DEF_BRK = 300;
 
 	const [sessionTimer, setSessionTimer] = useState(DEF_SESS);
 	const [breakTimer, setBreakTimer] = useState(DEF_BRK);

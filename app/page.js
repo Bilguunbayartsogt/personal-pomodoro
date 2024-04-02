@@ -8,11 +8,12 @@ import {
 	faStop,
 	faPowerOff,
 	faPause,
+	faForward,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Pomodoro() {
 	//constant variables:
-	const DEF_SESS = 6;
+	const DEF_SESS = 3;
 	const DEF_BRK = 6;
 
 	const [sessionTimer, setSessionTimer] = useState(DEF_SESS);
@@ -25,6 +26,7 @@ export default function Pomodoro() {
 	const [breakInterval, setBreakInterval] = useState(null);
 
 	const [isSession, setIsSession] = useState(true);
+	const [isUpdateVisible, setIsUpdateVisible] = useState(true);
 
 	useEffect(() => {
 		if (sessionTimer <= 0) {
@@ -102,6 +104,10 @@ export default function Pomodoro() {
 				});
 			}, 1000);
 			setSessionInterval(temp);
+			if (sessionTimer === sessionLength) {
+				playLetsGo();
+				setIsUpdateVisible(false);
+			}
 		}
 	};
 
@@ -125,6 +131,7 @@ export default function Pomodoro() {
 		setBreakInterval(null);
 		setBreakTimer(DEF_BRK);
 		setIsSession((prev) => !prev);
+		setIsUpdateVisible(true);
 	};
 
 	const skipBreak = () => {
@@ -132,6 +139,7 @@ export default function Pomodoro() {
 		setBreakInterval(null);
 		setIsSession((prev) => !prev);
 		setBreakTimer(DEF_BRK);
+		setIsUpdateVisible(true);
 	};
 
 	const stopSession = () => {
@@ -151,6 +159,10 @@ export default function Pomodoro() {
 		setBreakTimer(DEF_BRK);
 		stopBreak();
 		stopSession();
+		setIsUpdateVisible(true);
+		if (!isSession) {
+			setIsSession(true);
+		}
 	};
 
 	const displayStatus = () => {
@@ -180,76 +192,82 @@ export default function Pomodoro() {
 					onClick={() => skipBreak()}
 					className={`${styles.timeBtn} ${styles.startStopBtn}`}
 				>
-					{/* <FontAwesomeIcon icon={faPlay} /> */}
-					skip
+					<FontAwesomeIcon icon={faForward} />
 				</button>
 			);
 		}
 	};
 
 	return (
-		<div className={styles.allContainer}>
-			<div className={styles.statusLabel}>
-				{/* {timeInterval ? (
-					<div>{isSession ? <label>Session</label> : <label>Break</label>}</div>
-				) : (
-					<label>Good Morning!</label>
-				)} */}
-			</div>
-			<div id="pomodoro" className={styles.pomodoro}>
-				<div className={styles.timer}>
-					{displayStatus()}
-					<div className={styles.status}>
-						<h1>{formatTime(sessionTimer)}</h1>
-						<h1>{formatTime(breakTimer)}</h1>
-					</div>
-					<button
-						onClick={resetTimer}
-						className={`${styles.timeBtn} ${styles.resetBtn}`}
-					>
-						<FontAwesomeIcon icon={faPowerOff} />
-					</button>
+		<>
+			<div className={styles.allContainer}>
+				<div className={styles.statusLabel}>
+					{isSession ? <label>SESSION</label> : <label>BREAK</label>}
 				</div>
+				<div id="pomodoro" className={styles.pomodoro}>
+					<div className={styles.timer}>
+						<div className={styles.status}>
+							{isSession ? (
+								<h1>{formatTime(sessionTimer)}</h1>
+							) : (
+								<h1>{formatTime(breakTimer)}</h1>
+							)}
+						</div>
+						<div className={styles.timeBtnContainer}>
+							{displayStatus()}
+							<button
+								onClick={resetTimer}
+								className={`${styles.timeBtn} ${styles.resetBtn}`}
+							>
+								<FontAwesomeIcon icon={faPowerOff} />
+							</button>
+						</div>
+					</div>
 
-				<div className={styles.update}>
-					<div className={styles.session}>
-						<button
-							onClick={() => changeSess("add")}
-							className={styles.updateBtn}
-						>
-							+
-						</button>
-						<div>
-							<label>Session</label>
-							<h2 id="session-length">{sessionLength / 60}</h2>
+					<div
+						className={`${styles.update} ${
+							!isUpdateVisible ? styles.updateHidden : styles.updateVisible
+						}`}
+					>
+						<div className={styles.session}>
+							<button
+								onClick={() => changeSess("add")}
+								className={styles.updateBtn}
+							>
+								+
+							</button>
+							<div>
+								<label>Session</label>
+								<h2 id="session-length">{sessionLength / 60}</h2>
+							</div>
+							<button
+								onClick={() => changeSess("sub")}
+								className={styles.updateBtn}
+							>
+								-
+							</button>
 						</div>
-						<button
-							onClick={() => changeSess("sub")}
-							className={styles.updateBtn}
-						>
-							-
-						</button>
-					</div>
-					<div className={styles.break}>
-						<button
-							onClick={() => changeBreak("add")}
-							className={styles.updateBtn}
-						>
-							+
-						</button>
-						<div>
-							<label>Break</label>
-							<h2>{breakLength / 60}</h2>
+						<div className={styles.break}>
+							<button
+								onClick={() => changeBreak("add")}
+								className={styles.updateBtn}
+							>
+								+
+							</button>
+							<div>
+								<label>Break</label>
+								<h2>{breakLength / 60}</h2>
+							</div>
+							<button
+								onClick={() => changeBreak("sub")}
+								className={styles.updateBtn}
+							>
+								-
+							</button>
 						</div>
-						<button
-							onClick={() => changeBreak("sub")}
-							className={styles.updateBtn}
-						>
-							-
-						</button>
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

@@ -37,6 +37,14 @@ export default function Pomodoro() {
 		}
 	}, [sessionTimer, breakTimer]);
 
+	// useEffect(() => {
+	// 	if (sessionInterval) {
+	// 		mouseMusic.play();
+	// 	} else {
+	// 		mouseMusic.pause();
+	// 	}
+	// }, [sessionInterval]);
+
 	useEffect(() => {
 		return () => {
 			stopSession();
@@ -56,15 +64,21 @@ export default function Pomodoro() {
 		if (!(sessionInterval && breakInterval) && sessionLength == sessionTimer) {
 			if (operator === "add") {
 				setSessionLength((prev) => {
-					const newSess = prev + 60;
-					setSessionTimer(newSess);
-					return newSess;
+					if (prev / 60 < 50) {
+						const newSess = prev + 60;
+						setSessionTimer(newSess);
+						return newSess;
+					}
+					return prev;
 				});
 			} else if (operator === "sub" && sessionLength > 60) {
 				setSessionLength((prev) => {
-					const newSess = prev - 60;
-					setSessionTimer(newSess);
-					return newSess;
+					if (prev / 60 > 20) {
+						const newSess = prev - 60;
+						setSessionTimer(newSess);
+						return newSess;
+					}
+					return prev;
 				});
 			}
 		}
@@ -74,23 +88,24 @@ export default function Pomodoro() {
 		if (!(sessionInterval && breakInterval) && sessionLength == sessionTimer) {
 			if (operator === "add") {
 				setBreakLength((prev) => {
-					const newBreak = prev + 60;
-					setBreakTimer(newBreak);
-					return newBreak;
+					if (prev / 60 < 10) {
+						const newBreak = prev + 60;
+						setBreakTimer(newBreak);
+						return newBreak;
+					}
+					return prev;
 				});
 			} else if (operator === "sub" && breakTimer > 0) {
 				setBreakLength((prev) => {
-					const newBreak = prev - 60;
-					setBreakTimer(newBreak);
-					return newBreak;
+					if (prev / 60 > 1) {
+						const newBreak = prev - 60;
+						setBreakTimer(newBreak);
+						return newBreak;
+					}
+					return prev;
 				});
 			}
 		}
-	};
-
-	const playLetsGo = () => {
-		const letsGo = new Audio("./lets-go.mp3");
-		letsGo.play();
 	};
 
 	const startSession = () => {
@@ -105,7 +120,6 @@ export default function Pomodoro() {
 			}, 1000);
 			setSessionInterval(temp);
 			if (sessionTimer === sessionLength) {
-				playLetsGo();
 				setIsUpdateVisible(false);
 			}
 		}
@@ -165,12 +179,20 @@ export default function Pomodoro() {
 		}
 	};
 
+	const onStartBtn = () => {
+		startSession();
+	};
+
+	const onPauseBtn = () => {
+		stopSession();
+	};
+
 	const displayStatus = () => {
 		if (isSession) {
 			if (sessionInterval) {
 				return (
 					<button
-						onClick={() => stopSession()}
+						onClick={onPauseBtn}
 						className={`${styles.timeBtn} ${styles.startStopBtn}`}
 					>
 						<FontAwesomeIcon icon={faPause} />
@@ -179,7 +201,7 @@ export default function Pomodoro() {
 			} else {
 				return (
 					<button
-						onClick={() => startSession()}
+						onClick={onStartBtn}
 						className={`${styles.timeBtn} ${styles.startStopBtn}`}
 					>
 						<FontAwesomeIcon icon={faPlay} />

@@ -37,14 +37,6 @@ export default function Pomodoro() {
 		}
 	}, [sessionTimer, breakTimer]);
 
-	// useEffect(() => {
-	// 	if (sessionInterval) {
-	// 		mouseMusic.play();
-	// 	} else {
-	// 		mouseMusic.pause();
-	// 	}
-	// }, [sessionInterval]);
-
 	useEffect(() => {
 		return () => {
 			stopSession();
@@ -129,14 +121,17 @@ export default function Pomodoro() {
 		if (!breakInterval) {
 			const temp = setInterval(() => {
 				setBreakTimer((prev) => {
-					return prev - 1; // Otherwise, decrement sessionTimer
+					return prev - 1;
 				});
 			}, 1000);
 			setBreakInterval(temp);
-			clearInterval(sessionInterval); // Clear session interval when starting break
+			clearInterval(sessionInterval);
 			setSessionInterval(null);
 			setSessionTimer(DEF_SESS);
 			setIsSession((prev) => !prev);
+			// audio
+			playOmg();
+			stopMouseMusic();
 		}
 	};
 
@@ -177,14 +172,46 @@ export default function Pomodoro() {
 		if (!isSession) {
 			setIsSession(true);
 		}
+		stopMouseMusic();
 	};
 
 	const onStartBtn = () => {
 		startSession();
+		playMouseMusic();
+		if (sessionTimer === sessionLength) {
+			playLetsgo();
+		}
 	};
 
 	const onPauseBtn = () => {
 		stopSession();
+		pauseMouseMusic();
+	};
+
+	const playLetsgo = () => {
+		const letsgo = document.getElementById("letsgo");
+		letsgo.play();
+	};
+
+	const playOmg = () => {
+		const omg = document.getElementById("omg");
+		omg.play();
+	};
+
+	const playMouseMusic = () => {
+		const mouseMusic = document.getElementById("mouseMusic");
+		mouseMusic.play();
+	};
+
+	const pauseMouseMusic = () => {
+		const mouseMusic = document.getElementById("mouseMusic");
+		mouseMusic.pause();
+	};
+
+	const stopMouseMusic = () => {
+		const mouseMusic = document.getElementById("mouseMusic");
+		mouseMusic.pause();
+		mouseMusic.load();
 	};
 
 	const displayStatus = () => {
@@ -222,6 +249,17 @@ export default function Pomodoro() {
 
 	return (
 		<>
+			<div id="audio-files">
+				<audio id="mouseMusic" loop>
+					<source src="./mouse.mp3"></source>
+				</audio>
+				<audio id="letsgo">
+					<source src="./lets-go.mp3"></source>
+				</audio>
+				<audio id="omg">
+					<source src="./ohmygod.mp3"></source>
+				</audio>
+			</div>
 			<div className={styles.allContainer}>
 				<div className={styles.statusLabel}>
 					{isSession ? <label>SESSION</label> : <label>BREAK</label>}

@@ -2,6 +2,8 @@
 
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
+import Head from "next/head";
+import { GoogleTagManager } from "@next/third-parties/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faPlay,
@@ -249,6 +251,7 @@ export default function Pomodoro() {
 
 	return (
 		<>
+			<Head></Head>
 			<div id="audio-files">
 				<audio id="mouseMusic" loop>
 					<source src="./mouse.mp3"></source>
